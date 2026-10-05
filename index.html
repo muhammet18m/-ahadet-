@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sistem Güvenlik & Virüs Taraması</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ---- 1. KAMUFLAJ / VİRÜS TARAMASI EKRANI ---- */
+    #disguise-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #0b0e14;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .scan-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      padding: 25px 20px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    .shield-icon {
+      font-size: 50px;
+      margin-bottom: 12px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.08); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+
+    .scan-title {
+      font-size: 19px;
+      font-weight: 600;
+      color: #58a6ff;
+      margin-bottom: 8px;
+    }
+
+    .scan-status {
+      font-size: 13px;
+      color: #8b949e;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      background-color: #21262d;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #238636, #2ea043);
+      animation: fillBar 2s ease-in-out;
+    }
+
+    .proceed-btn {
+      background: linear-gradient(135deg, #1f6feb, #238636);
+      color: #ffffff;
+      border: none;
+      padding: 15px 18px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(35, 134, 54, 0.4);
+      width: 100%;
+      line-height: 1.4;
+    }
+
+    .proceed-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* ---- 2. SÜRPRİZ KUTLAMA EKRANI ---- */
+    #celebration-screen {
+      display: none;
+      width: 100%;
+      max-width: 480px;
+      padding: 30px 20px 80px 20px;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header-badge {
+      background: rgba(255, 105, 180, 0.15);
+      color: #ff69b4;
+      border: 1px solid rgba(255, 105, 180, 0.3);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .main-title {
+      font-size: 28px;
+      color: #ff79c6;
+      text-shadow: 0 0 12px rgba(255, 121, 198, 0.5);
+      margin-bottom: 10px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: #bd93f9;
+      font-size: 14px;
+      margin-bottom: 30px;
+      line-height: 1.4;
+      padding: 0 10px;
+    }
+
+    /* Pasta Bölümü */
+    .cake-section {
+      background: #1e1e2e;
+      border-radius: 16px;
+      padding: 25px 15px;
+      width: 100%;
+      margin-bottom: 25px;
+      border: 1px solid #44475a;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .cake {
+      font-size: 70px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+
+    .cake:active {
+      transform: scale(1.15);
+    }
+
+    .cake-hint {
+      font-size: 13px;
+      color: #f1fa8c;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    /* Hediye Kutuları Grid */
+    .gifts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 25px;
+    }
+
+    .gift-box {
+      background: #282a36;
+      border: 1px solid #6272a4;
+      border-radius: 12px;
+      padding: 15px 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .gift-box:active {
+      border-color: #ff79c6;
+      transform: scale(0.95);
+    }
+
+    .gift-icon {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+
+    .gift-title {
+      font-size: 11px;
+      color: #f8f8f2;
+      font-weight: 500;
+    }
+
+    /* Müzik Butonu */
+    .music-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: rgba(40, 42, 54, 0.9);
+      border: 1px solid #ff79c6;
+      color: #ff79c6;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 1000;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    /* Alt İmzası (Footer) */
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(13, 17, 23, 0.95);
+      border-top: 1px solid #21262d;
+      padding: 12px 10px;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: #8b949e;
+      font-weight: bold;
+      z-index: 100;
+      backdrop-filter: blur(5px);
+    }
+
+    footer span {
+      color: #58a6ff;
+    }
+
+    /* Emoji Yağmuru */
+    .emoji-rain {
+      position: fixed;
+      top: -50px;
+      font-size: 26px;
+      user-select: none;
+      pointer-events: none;
+      z-index: 999;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(105vh) rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Müzik Kontrolü -->
+  <button class="music-btn" id="musicToggle" style="display:none;" title="Müziği Durdur/Başlat">🎵</button>
+
+  <!-- 1. KAMUFLAJ EKRANI -->
+  <div id="disguise-screen">
+    <div class="scan-card">
+      <div class="shield-icon">🛡️</div>
+      <div class="scan-title">Sistem Güvenlik & Virüs Taraması</div>
+      <div class="scan-status">Bağlantı güvenliği doğrulandı. Tamamlamak için onaylayın.</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar"></div>
+      </div>
+      <button class="proceed-btn" onclick="startSurprise()">
+        Bugünün anlamı ve önemi için sayfada ilerlemek üzere tıklayın
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. SÜRPRİZ KUTLAMA EKRANI -->
+  <div id="celebration-screen">
+    <div class="header-badge">Bu Web Sitesi Şahadet İçin Hazırlanmıştır</div>
+    <h1 class="main-title">İyi ki Doğdun Şahadet! 🎉</h1>
+    <p class="subtitle">Yeni yaşın sağlık, mutluluk ve tüm güzellikleri beraberinde getirsin!</p>
+
+    <!-- Pasta -->
+    <div class="cake-section">
+      <div class="cake" id="cake" onclick="blowCandle()">🎂</div>
+      <div class="cake-hint" id="cakeHint">Muma tıklayarak dilek tut ve üfle!</div>
+    </div>
+
+    <!-- Sürpriz Notlar -->
+    <div class="gifts-grid">
+      <div class="gift-box" onclick="openGift(1)">
+        <div class="gift-icon">🎁</div>
+        <div class="gift-title">Mesaj 1</div>
+      </div>
+      <div class="gift-box" onclick="openGift(2)">
+        <div class="gift-icon">🎈</div>
+        <div class="gift-title">Mesaj 2</div>
+      </div>
+      <div class="gift-box" onclick="openGift(3)">
+        <div class="gift-icon">🌟</div>
+        <div class="gift-title">Mesaj 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- İMZA -->
+  <footer>
+    POWERED BY <span>MUHAMMET</span>
+  </footer>
+
+  <script>
+    let audioCtx = null;
+    let isPlaying = false;
+    let musicInterval = null;
+
+    function startSurprise() {
+      document.getElementById('disguise-screen').style.display = 'none';
+      document.getElementById('celebration-screen').style.display = 'flex';
+      document.getElementById('musicToggle').style.display = 'flex';
+
+      startEmojiRain();
+      playFestiveMusic();
+    }
+
+    function blowCandle() {
+      const cake = document.getElementById('cake');
+      const hint = document.getElementById('cakeHint');
+      cake.innerHTML = '🍰';
+      hint.innerHTML = '✨ Dileğin kabul olsun! İyi ki doğdun!';
+    }
+
+    function openGift(num) {
+      const messages = [
+        "Her yeni günün bir öncekinden daha neşeli ve huzurlu geçsin! 🌸",
+        "Hayatındaki tüm hedeflerine ve hayallerine kolaylıkla ulaşmanı dileriz! ✨",
+        "İyi ki varsın, sevdiklerinle birlikte nice mutlu yıllara! 🥳"
+      ];
+      alert(messages[num - 1]);
+    }
+
+    function startEmojiRain() {
+      const emojis = ['🎉', '✨', '🎈', '🎂', '🥳', '💖', '🎁', '🌸'];
+      setInterval(() => {
+        const emoji = document.createElement('div');
+        emoji.className = 'emoji-rain';
+        emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+        emoji.style.left = Math.random() * 95 + 'vw';
+        emoji.style.animationDuration = (Math.random() * 2 + 3) + 's';
+        document.body.appendChild(emoji);
+
+        setTimeout(() => { emoji.remove(); }, 5000);
+      }, 220);
+    }
+
+    function playFestiveMusic() {
+      if (isPlaying) return;
+      isPlaying = true;
+
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+
+      const notes = [
+        261.63, 261.63, 293.66, 261.63, 349.23, 329.63,
+        261.63, 261.63, 293.66, 261.63, 392.00, 349.23
+      ];
+
+      const durations = [
+        0.25, 0.25, 0.5, 0.5, 0.5, 1.0,
+        0.25, 0.25, 0.5, 0.5, 0.5, 1.0
+      ];
+
+      let noteIdx = 0;
+
+      function playNextNote() {
+        if (!isPlaying || !audioCtx) return;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.value = notes[noteIdx];
+
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + durations[noteIdx] * 0.8);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + durations[noteIdx] * 0.8);
+
+        const currentDuration = durations[noteIdx] * 500;
+        noteIdx = (noteIdx + 1) % notes.length;
+
+        musicInterval = setTimeout(playNextNote, currentDuration);
+      }
+
+      playNextNote();
+    }
+
+    document.getElementById('musicToggle').addEventListener('click', () => {
+      if (isPlaying) {
+        isPlaying = false;
+        clearTimeout(musicInterval);
+        document.getElementById('musicToggle').innerText = '🔇';
+      } else {
+        document.getElementById('musicToggle').innerText = '🎵';
+        playFestiveMusic();
+      }
+    });
+  </script>
+</body>
+</html>
